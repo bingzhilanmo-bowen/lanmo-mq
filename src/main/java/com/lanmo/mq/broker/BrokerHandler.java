@@ -26,12 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ChannelHandler.Sharable
 @Slf4j
 public class BrokerHandler extends ChannelInboundHandlerAdapter {
-
+    //记录register 的次数
     AtomicInteger runNum=new AtomicInteger(0);
-
-    /**
-     * 存储topic和消费节点的对应关系
-     */
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

@@ -91,7 +91,7 @@ public class MqDecoder extends ByteToMessageDecoder {
 
             if (frameLength < unBodySliceStartLength) {
                 in.skipBytes(frameLength);
-                throw new Exception("发生了突发异常,消息可能已经被其它线程使用");
+                throw new Exception("error!!!,other thread read this msg");
             }
             BaseMsg msg = decodeMsg(in, contentLength);
             if (msg != null) {

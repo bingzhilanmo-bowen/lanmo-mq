@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author bo5.wang@56qq.com
  * @version 1.0
- * @desc
+ * @desc 存储topic的消费信息
  * @date 2017/7/13
  */
 @Slf4j
