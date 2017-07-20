@@ -13,6 +13,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.HashedWheelTimer;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @desc
  * @date 2017/7/11
  */
+@Slf4j
 public class CustomerServer {
 
     protected final HashedWheelTimer timer=new HashedWheelTimer();
@@ -35,7 +37,7 @@ public class CustomerServer {
 
     private final ConnectorIdleStateTrigger idleStateTrigger=new ConnectorIdleStateTrigger();
 
-    public void connect(int port, String host) throws Exception {
+    public void connect(int port, String host,ProcessMsgService processMsgService) throws Exception {
 
         EventLoopGroup group = new NioEventLoopGroup();
 
@@ -51,7 +53,7 @@ public class CustomerServer {
                         idleStateTrigger,
                         new MqDecoder(),
                         new MqEncoder(),
-                        new CustomerHandler()
+                        new CustomerHandler(processMsgService)
                 };
             }
         };
@@ -97,6 +99,17 @@ public class CustomerServer {
         return channel.writeAndFlush(msg);
     }
 
+    public void registerTopic(String topic){
+        CustomerRegisterMsg registerMsg=new CustomerRegisterMsg();
+        MsgHeader msgHeader=new MsgHeader(MsgType.REGISTER.getValue());
+        registerMsg.setHeader(msgHeader);
+        registerMsg.setTopic(topic);
+
+        channel.writeAndFlush(registerMsg);
+    }
+
+
+
     public static void main(String[] args) throws Exception {
         int port = 8080;
         if (args != null && args.length > 0) {
@@ -107,15 +120,18 @@ public class CustomerServer {
             }
         }
         CustomerServer customerServer=  new CustomerServer();
-        customerServer.connect(port, "127.0.0.1");
+        customerServer.connect(port, "127.0.0.1",(msg)->{
+            String topic=msg.getConsMsgInfo().getTopic();
+            String tag=msg.getConsMsgInfo().getContent();
+            log.info("receive topic is {},and tag is {}",topic,tag);
+            //@TODO 自己的业务逻辑
 
 
-            CustomerRegisterMsg registerMsg=new CustomerRegisterMsg();
+        });
 
-            MsgHeader msgHeader=new MsgHeader(MsgType.REGISTER.getValue());
-            registerMsg.setHeader(msgHeader);
-            registerMsg.setTopic("test_topic");
-            customerServer.writeAndFlush(registerMsg);
+        customerServer.registerTopic("test_topic");
+
+
     }
 
 }
