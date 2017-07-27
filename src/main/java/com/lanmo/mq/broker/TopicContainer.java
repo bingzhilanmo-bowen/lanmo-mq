@@ -18,7 +18,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class TopicContainer {
 
+    private static ConcurrentHashMap<String,Channel> connectChannel=new ConcurrentHashMap<>();
 
+
+    @Deprecated
     private static ConcurrentHashMap<String,Set<Channel>> topicSubscrie=new ConcurrentHashMap<>();
 
 
@@ -27,6 +30,7 @@ public class TopicContainer {
      * @param ctx
      * @param msg
      */
+    @Deprecated
     public static void addTopicSub(ChannelHandlerContext ctx, CustomerRegisterMsg msg){
         String topic=msg.getTopic();
         log.info("add topic {},remote address {} channel",topic,ctx.channel().remoteAddress().toString());
@@ -43,9 +47,28 @@ public class TopicContainer {
      * @param topic
      * @return
      */
+    @Deprecated
     public static Set<Channel> getTopicSubs(String topic){
         return topicSubscrie.get(topic);
     }
 
+    /**
+     * 记录建立链接的channel
+     * @param ctx
+     */
+    public static void registerChannel(ChannelHandlerContext ctx){
+        connectChannel.put(ctx.channel().remoteAddress().toString(),ctx.channel());
+    }
 
+    /**
+     * 移除断开链接的channel
+     * @param ctx
+     */
+    public static void removeChannel(ChannelHandlerContext ctx){
+        connectChannel.remove(ctx.channel().remoteAddress().toString());
+    }
+
+    public static Channel getSendChannel(String ip){
+        return connectChannel.get(ip);
+    }
 }

@@ -35,7 +35,7 @@ public class EtcdUtils {
 
     static {
          //去读取配置文件--简单点写死在这里
-        ETCD_URIS="http://192.168.4.8:2379";
+        ETCD_URIS="http://192.168.7.97:2379";
         String[] servers=ETCD_URIS.split(",");
         log.info("etcd servers is {}", JSONObject.toJSONString(servers));
         URI[] uris=new URI[servers.length];
@@ -192,17 +192,17 @@ public class EtcdUtils {
 
 
     public static void main(String args[]) {
-        //put("test","bobo test etcd",30);
-
+       // put("test","bobo test etcd",30);
+       // System.out.print(get("test"));
           // System.out.print(JSONObject.toJSONString(getDir("test_dir")));
         /*putDir("test_dir");
 
         put("test_dir/node1","test1");
         put("test_dir/node2","test2");
         put("test_dir/node3","test3");*/
-            addListenner("foo",(response)->{
+           /* addListenner("foo",(response)->{
                System.out.print( response.node.getValue());
-            });
+            });*/
 
 
     }

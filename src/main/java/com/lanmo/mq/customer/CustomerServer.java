@@ -1,5 +1,7 @@
 package com.lanmo.mq.customer;
 
+import com.lanmo.mq.common.EtcdRoots;
+import com.lanmo.mq.etcd.EtcdUtils;
 import com.lanmo.mq.netty.MqDecoder;
 import com.lanmo.mq.netty.MqEncoder;
 import com.lanmo.mq.netty.handler.ConnectionWatchdog;
@@ -15,6 +17,8 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.HashedWheelTimer;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -37,7 +41,7 @@ public class CustomerServer {
 
     private final ConnectorIdleStateTrigger idleStateTrigger=new ConnectorIdleStateTrigger();
 
-    public void connect(int port, String host,ProcessMsgService processMsgService) throws Exception {
+    public void connect(int port, String host, ProcessMsgService processMsgService, List<String> topics) throws Exception {
 
         EventLoopGroup group = new NioEventLoopGroup();
 
@@ -53,7 +57,7 @@ public class CustomerServer {
                         idleStateTrigger,
                         new MqDecoder(),
                         new MqEncoder(),
-                        new CustomerHandler(processMsgService)
+                        new CustomerHandler(processMsgService,topics,timer)
                 };
             }
         };
@@ -100,12 +104,8 @@ public class CustomerServer {
     }
 
     public void registerTopic(String topic){
-        CustomerRegisterMsg registerMsg=new CustomerRegisterMsg();
-        MsgHeader msgHeader=new MsgHeader(MsgType.REGISTER.getValue());
-        registerMsg.setHeader(msgHeader);
-        registerMsg.setTopic(topic);
-
-        channel.writeAndFlush(registerMsg);
+        log.info("register topic is {},ip is {}",topic,channel.localAddress().toString());
+        EtcdUtils.put(EtcdRoots.registerDir(topic,channel.localAddress().toString()),channel.localAddress().toString());
     }
 
 
@@ -125,11 +125,8 @@ public class CustomerServer {
             String tag=msg.getConsMsgInfo().getContent();
             log.info("receive topic is {},and tag is {}",topic,tag);
             //@TODO 自己的业务逻辑
+        }, Arrays.asList("test_topic"));
 
-
-        });
-
-        customerServer.registerTopic("test_topic");
 
 
     }

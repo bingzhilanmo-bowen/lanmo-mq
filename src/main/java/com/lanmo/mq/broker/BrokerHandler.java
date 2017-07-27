@@ -1,6 +1,8 @@
 package com.lanmo.mq.broker;
 
 import com.alibaba.fastjson.JSONObject;
+import com.lanmo.mq.common.EtcdRoots;
+import com.lanmo.mq.etcd.EtcdUtils;
 import com.lanmo.mq.netty.message.*;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -13,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,14 +35,16 @@ public class BrokerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.info("connect time ：{}",new Date());
-        log.info("connect address {}",ctx.channel().remoteAddress());
-        ctx.fireChannelActive();
+        log.info("connect address {}",ctx.channel().remoteAddress().toString());
+        TopicContainer.registerChannel(ctx);
+       // ctx.fireChannelActive();
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         log.info("in active connect time ：{}",new Date());
-        log.info("in active address is {}",ctx.channel().remoteAddress());
+        log.info("in active address is {}",ctx.channel().remoteAddress().toString());
+        TopicContainer.removeChannel(ctx);
     }
 
     @Override
@@ -57,11 +62,6 @@ public class BrokerHandler extends ChannelInboundHandlerAdapter {
             log.info("receive producer msg {}",JSONObject.toJSONString(msg));
             sendCustomerMsg2Customer((ProducerMsg) msg);
             ReferenceCountUtil.release(msg);
-        }else if(msg instanceof CustomerRegisterMsg){
-            log.info("register num is {}",runNum.addAndGet(1));
-            log.info("receive customer register msg {}",JSONObject.toJSONString(msg));
-            TopicContainer.addTopicSub(ctx, (CustomerRegisterMsg) msg);
-            ReferenceCountUtil.release(msg);
         }
 
     }
@@ -71,12 +71,15 @@ public class BrokerHandler extends ChannelInboundHandlerAdapter {
         ProMsgInfo msgInfo=msg.getProMsgInfo();
         log.info("receive need send to customer msg is {}",JSONObject.toJSONString(msgInfo));
         String topic=msgInfo.getTopic();
-        Set<Channel> topicSubChannel=TopicContainer.getTopicSubs(topic);
-
+        List<String> subRegister= EtcdUtils.getDir(EtcdRoots.topicDir(topic));
+        log.info("topic {},sub ips {}",topic,JSONObject.toJSONString(subRegister));
         //@TODO 负载均衡
-
-        if(!topicSubChannel.isEmpty()){
-            Channel sendChannel=topicSubChannel.iterator().next();
+        if(!subRegister.isEmpty()){
+            String subIp=subRegister.get(0);
+            Channel sendChannel=TopicContainer.getSendChannel(subIp);
+            if(sendChannel==null){
+                return;
+            }
             log.info("topic {},msg {}, send channel is {}",topic,JSONObject.toJSONString(msgInfo),sendChannel.remoteAddress().toString());
 
             ConsumerMsg consumerMsg=new ConsumerMsg();
