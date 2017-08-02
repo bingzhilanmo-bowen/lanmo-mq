@@ -57,7 +57,7 @@ public class CustomerServer {
                         idleStateTrigger,
                         new MqDecoder(),
                         new MqEncoder(),
-                        new CustomerHandler(processMsgService,topics,timer)
+                        new CustomerHandler(processMsgService,topics)
                 };
             }
         };

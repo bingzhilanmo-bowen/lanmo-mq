@@ -19,7 +19,13 @@ public class DelayPush {
 
    private static final ExecutorService exec = Executors.newCachedThreadPool();
 
+   private static volatile Boolean start=false;
+
     public static void add(int delayInMilliseconds, String topic, String tag, String content, Integer consumptionType){
+        if(!start){
+            run();
+            start=true;
+        }
        queue.offer(new DelayTask(delayInMilliseconds,topic,tag,content,consumptionType));
    }
 

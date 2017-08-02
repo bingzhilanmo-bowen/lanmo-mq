@@ -2,6 +2,7 @@ package com.lanmo.mq.broker;
 
 import com.alibaba.fastjson.JSONObject;
 import com.lanmo.mq.common.EtcdRoots;
+import com.lanmo.mq.delay.DelayPush;
 import com.lanmo.mq.etcd.EtcdUtils;
 import com.lanmo.mq.netty.message.*;
 import io.netty.channel.Channel;
@@ -14,11 +15,13 @@ import io.netty.util.internal.ConcurrentSet;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * @author bo5.wang@56qq.com
@@ -70,28 +73,37 @@ public class BrokerHandler extends ChannelInboundHandlerAdapter {
     private void sendCustomerMsg2Customer(ProducerMsg msg){
         ProMsgInfo msgInfo=msg.getProMsgInfo();
         log.info("receive need send to customer msg is {}",JSONObject.toJSONString(msgInfo));
-        String topic=msgInfo.getTopic();
-        List<String> subRegister= EtcdUtils.getDir(EtcdRoots.topicDir(topic));
-        log.info("topic {},sub ips {}",topic,JSONObject.toJSONString(subRegister));
-        //@TODO 负载均衡
-        if(!subRegister.isEmpty()){
-            String subIp=subRegister.get(0);
-            Channel sendChannel=TopicContainer.getSendChannel(subIp);
-            if(sendChannel==null){
-                return;
+        if(msgInfo.getDelaySend()>0){
+            //延迟队列
+            DelayPush.add(msgInfo.getDelaySend(),msgInfo.getTopic(),msgInfo.getTag(),msgInfo.getContent(),msgInfo.getConsumptionType());
+        }else {
+            String topic=msgInfo.getTopic();
+            List<String> subRegister= EtcdUtils.getDir(EtcdRoots.topicDir(topic));
+            log.info("not delay topic {},sub ips {}",topic,JSONObject.toJSONString(subRegister));
+            //@TODO 负载均衡
+            if(!subRegister.isEmpty()){
+                ConsumerMsg consumerMsg=new ConsumerMsg();
+                MsgHeader msgHeader=new MsgHeader();
+                msgHeader.setMsgType(MsgType.CONSUMER.getValue());
+                consumerMsg.setHeader(msgHeader);
+                ConsMsgInfo consMsgInfo=new ConsMsgInfo();
+                BeanUtils.copyProperties(msg.getProMsgInfo(),consMsgInfo);
+                consumerMsg.setConsMsgInfo(consMsgInfo);
+                for (Channel ch:getChannels(subRegister,msgInfo.getConsumptionType()))
+                    ch.writeAndFlush(consumerMsg);
             }
-            log.info("topic {},msg {}, send channel is {}",topic,JSONObject.toJSONString(msgInfo),sendChannel.remoteAddress().toString());
+        }
+    }
 
-            ConsumerMsg consumerMsg=new ConsumerMsg();
-            MsgHeader msgHeader=new MsgHeader();
-            msgHeader.setMsgType(MsgType.CONSUMER.getValue());
-            consumerMsg.setHeader(msgHeader);
-
-            ConsMsgInfo consMsgInfo=new ConsMsgInfo();
-            BeanUtils.copyProperties(msg.getProMsgInfo(),consMsgInfo);
-            consumerMsg.setConsMsgInfo(consMsgInfo);
-
-            sendChannel.writeAndFlush(consumerMsg);
+    private List<Channel> getChannels(List<String> subRegister,Integer consumptionType){
+        if(consumptionType== ConsumptionType.ALONE.getValue()){
+            String subIp=subRegister.get(0);
+            Channel sendChannel= TopicContainer.getSendChannel(subIp);
+            return Arrays.asList(sendChannel);
+        }else {
+            return subRegister.stream().map((sub)->{
+                return TopicContainer.getSendChannel(sub);
+            }).collect(Collectors.toList());
         }
     }
 

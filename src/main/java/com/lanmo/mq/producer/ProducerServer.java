@@ -122,7 +122,7 @@ public class ProducerServer {
             proMsgInfo.setTopic("test_topic");
             proMsgInfo.setTag("test_tag");
             proMsgInfo.setConsumptionType(ConsumptionType.ALONE.getValue());
-            proMsgInfo.setDelaySend(0);
+            proMsgInfo.setDelaySend(i*10);
             producerMsg.setProMsgInfo(proMsgInfo);
             producerServer.writeAndFlush(producerMsg);
         }
