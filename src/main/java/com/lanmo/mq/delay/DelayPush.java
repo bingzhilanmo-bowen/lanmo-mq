@@ -1,15 +1,18 @@
 package com.lanmo.mq.delay;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc
  * @date 2017/8/1
  */
+@Slf4j
 public class DelayPush {
 
     /**
@@ -27,19 +30,15 @@ public class DelayPush {
             start=true;
         }
        queue.offer(new DelayTask(delayInMilliseconds,topic,tag,content,consumptionType));
+        log.info( "delay quene size is {}", queue.size());
    }
 
    public static void run(){
-       exec.execute(new DelayedTaskConsumer(queue));
+       exec.execute(new DelayedTaskConsumer());
    }
 
     //定义使用整个延迟队列的任务类
   public static class DelayedTaskConsumer implements Runnable{
-        private DelayQueue<DelayTask> queue;
-
-        public DelayedTaskConsumer(DelayQueue<DelayTask> queue){
-            this.queue = queue;
-           }
         public void run(){
             try{
                while (true){

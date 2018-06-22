@@ -1,7 +1,7 @@
 package com.lanmo.mq.netty.message;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc 消息定义
  * @date 2017/7/6

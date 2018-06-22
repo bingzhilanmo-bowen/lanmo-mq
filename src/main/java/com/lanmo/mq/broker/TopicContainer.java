@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc 存储topic的消费信息
  * @date 2017/7/13

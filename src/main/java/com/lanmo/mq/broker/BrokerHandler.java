@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc
  * @date 2017/7/7

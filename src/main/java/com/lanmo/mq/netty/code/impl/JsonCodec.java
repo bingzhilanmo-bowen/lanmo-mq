@@ -11,7 +11,7 @@ import com.lanmo.mq.netty.code.Codec;
 import java.io.IOException;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc json类型编码和解码
  * @date 2017/7/6

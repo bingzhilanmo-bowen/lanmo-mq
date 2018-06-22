@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc 检查连接是否断开，断开了 就重试12次
  * @date 2017/7/10

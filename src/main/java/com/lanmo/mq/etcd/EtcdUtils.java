@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc
  * @date 2017/7/5
@@ -35,7 +35,7 @@ public class EtcdUtils {
 
     static {
          //去读取配置文件--简单点写死在这里
-        ETCD_URIS="http://192.168.7.97:2379";
+        ETCD_URIS="http://172.16.92.162:2379";
         String[] servers=ETCD_URIS.split(",");
         log.info("etcd servers is {}", JSONObject.toJSONString(servers));
         URI[] uris=new URI[servers.length];

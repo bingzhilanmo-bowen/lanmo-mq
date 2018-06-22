@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc
  * @date 2017/7/11
@@ -122,7 +122,7 @@ public class ProducerServer {
             proMsgInfo.setTopic("test_topic");
             proMsgInfo.setTag("test_tag");
             proMsgInfo.setConsumptionType(ConsumptionType.ALONE.getValue());
-            proMsgInfo.setDelaySend(i*10);
+            proMsgInfo.setDelaySend(0);
             producerMsg.setProMsgInfo(proMsgInfo);
             producerServer.writeAndFlush(producerMsg);
         }

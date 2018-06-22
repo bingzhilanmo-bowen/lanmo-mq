@@ -6,7 +6,7 @@ import io.netty.channel.Channel;
 import lombok.Data;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc
  * @date 2017/7/6

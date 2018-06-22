@@ -4,7 +4,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc 心跳消息
  * @date 2017/7/6

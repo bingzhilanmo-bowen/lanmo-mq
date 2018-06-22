@@ -3,7 +3,7 @@ package com.lanmo.mq.netty.handler;
 import io.netty.channel.ChannelHandler;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc 客户端的ChannelHandler集合，由子类实现，这样做的好处：
  * 继承这个接口的所有子类可以很方便地获取ChannelPipeline中的Handlers

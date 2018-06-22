@@ -3,7 +3,7 @@ package com.lanmo.mq.etcd;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc
  * @date 2017/7/6

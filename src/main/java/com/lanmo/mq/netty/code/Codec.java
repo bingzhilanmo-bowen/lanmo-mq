@@ -1,7 +1,7 @@
 package com.lanmo.mq.netty.code;
 
 /**
- * @author bo5.wang@56qq.com
+ * @author bingzhilanmo@gmail.com
  * @version 1.0
  * @desc 序列化接口
  * @date 2017/7/6
